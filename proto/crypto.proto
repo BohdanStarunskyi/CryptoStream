@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package crypto;
+
+option go_package = "models/crypro";
+
+import "google/protobuf/empty.proto";
+
+service MessageStreamer {
+  // Client streaming: client sends many CryptoUpdateList messages, server responds once
+  rpc StreamMessages(stream CryptoUpdateList) returns (google.protobuf.Empty);
+}
+
+message CryptoUpdate {
+  string id = 1;
+  string symbol = 2;
+  string name = 3;
+  string image = 4;
+  double current_price = 5;
+}
+
+message CryptoUpdateList {
+  repeated CryptoUpdate updates = 1;
+}

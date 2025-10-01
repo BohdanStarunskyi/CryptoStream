@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoStream</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">₿ CryptoStream</h1>
+            <div class="status" id="status">Connecting...</div>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="search" placeholder="Search cryptocurrencies..." class="search">
+            <select id="sort" class="sort">
+                <option value="name">Name</option>
+                <option value="price">Price</option>
+                <option value="symbol">Symbol</option>
+            </select>
+        </div>
+
+        <div class="crypto-grid" id="cryptoGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Waiting for data...</p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>Real-time crypto prices • Total: <span id="count">0</span></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
