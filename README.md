@@ -2,6 +2,9 @@
 
 Real-time cryptocurrency price tracker with microservices architecture. Features live WebSocket updates, gRPC inter-service communication, and a beautiful responsive web interface.
 
+## Video Preview
+https://github.com/user-attachments/assets/d87de55f-5aa2-4685-b7a8-13f1c0523df8
+
 ## Features
 
 - Real-time crypto price updates via WebSocket
