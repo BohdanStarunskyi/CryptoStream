@@ -3,12 +3,12 @@ module gateway_service
 go 1.24.0
 
 require (
+	github.com/gorilla/websocket v1.5.3
 	google.golang.org/grpc v1.75.1
 	google.golang.org/protobuf v1.36.6
 )
 
 require (
-	github.com/gorilla/websocket v1.5.3 // indirect
 	golang.org/x/net v0.41.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect

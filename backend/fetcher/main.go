@@ -5,15 +5,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"fetceher_service/dto"
 	"fetceher_service/managers"
-	"fetceher_service/models/crypro"
+	"fetceher_service/models/crypto"
 )
 
 func main() {
-	connector, err := managers.NewGRPCConnector("localhost:50051")
+	gatewayHost := os.Getenv("GATEWAY_HOST")
+	if gatewayHost == "" {
+		gatewayHost = "localhost"
+	}
+	gatewayPort := os.Getenv("GATEWAY_PORT")
+	if gatewayPort == "" {
+		gatewayPort = "50051"
+	}
+
+	gatewayAddress := fmt.Sprintf("%s:%s", gatewayHost, gatewayPort)
+	connector, err := managers.NewGRPCConnector(gatewayAddress)
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
@@ -25,7 +36,7 @@ func main() {
 
 	cryptosChan := make(chan []dto.CryptoApiResponse)
 
-	go startFetching(httpClient, cryptosChan, 30*time.Second)
+	go startFetching(httpClient, cryptosChan, 10*time.Second)
 
 	processUpdates(connector, cryptosChan)
 }
@@ -62,7 +73,7 @@ func fetchData(client managers.NetworkManager) ([]dto.CryptoApiResponse, error) 
 
 func processUpdates(connector *managers.GRPCConnector, ch <-chan []dto.CryptoApiResponse) {
 	for cryptos := range ch {
-		list := []*crypro.CryptoUpdate{}
+		list := []*crypto.CryptoUpdate{}
 		for _, c := range cryptos {
 			list = append(list, c.ToProto())
 		}

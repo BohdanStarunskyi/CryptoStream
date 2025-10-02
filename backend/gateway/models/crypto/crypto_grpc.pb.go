@@ -4,7 +4,7 @@
 // - protoc             v6.32.1
 // source: crypto.proto
 
-package crypro
+package crypto
 
 import (
 	context "context"

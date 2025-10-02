@@ -4,7 +4,7 @@
 // 	protoc        v6.32.1
 // source: crypto.proto
 
-package crypro
+package crypto
 
 import (
 	reflect "reflect"
@@ -24,14 +24,15 @@ const (
 )
 
 type CryptoUpdate struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Symbol        string                 `protobuf:"bytes,2,opt,name=symbol,proto3" json:"symbol,omitempty"`
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Image         string                 `protobuf:"bytes,4,opt,name=image,proto3" json:"image,omitempty"`
-	CurrentPrice  float64                `protobuf:"fixed64,5,opt,name=current_price,json=currentPrice,proto3" json:"current_price,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Symbol          string                 `protobuf:"bytes,2,opt,name=symbol,proto3" json:"symbol,omitempty"`
+	Name            string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Image           string                 `protobuf:"bytes,4,opt,name=image,proto3" json:"image,omitempty"`
+	CurrentPrice    float64                `protobuf:"fixed64,5,opt,name=current_price,json=currentPrice,proto3" json:"current_price,omitempty"`
+	PriceChange_24H float64                `protobuf:"fixed64,6,opt,name=price_change_24h,json=priceChange24h,proto3" json:"price_change_24h,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CryptoUpdate) Reset() {
@@ -99,6 +100,13 @@ func (x *CryptoUpdate) GetCurrentPrice() float64 {
 	return 0
 }
 
+func (x *CryptoUpdate) GetPriceChange_24H() float64 {
+	if x != nil {
+		return x.PriceChange_24H
+	}
+	return 0
+}
+
 type CryptoUpdateList struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Updates       []*CryptoUpdate        `protobuf:"bytes,1,rep,name=updates,proto3" json:"updates,omitempty"`
@@ -131,6 +139,7 @@ func (x *CryptoUpdateList) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+// Deprecated: Use CryptoUpdateList.ProtoReflect.Descriptor instead.
 func (*CryptoUpdateList) Descriptor() ([]byte, []int) {
 	return file_crypto_proto_rawDescGZIP(), []int{1}
 }
@@ -146,17 +155,18 @@ var File_crypto_proto protoreflect.FileDescriptor
 
 const file_crypto_proto_rawDesc = "" +
 	"\n" +
-	"\fcrypto.proto\x12\x06crypto\x1a\x1bgoogle/protobuf/empty.proto\"\x85\x01\n" +
+	"\fcrypto.proto\x12\x06crypto\x1a\x1bgoogle/protobuf/empty.proto\"\xaf\x01\n" +
 	"\fCryptoUpdate\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06symbol\x18\x02 \x01(\tR\x06symbol\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x14\n" +
 	"\x05image\x18\x04 \x01(\tR\x05image\x12#\n" +
-	"\rcurrent_price\x18\x05 \x01(\x01R\fcurrentPrice\"B\n" +
+	"\rcurrent_price\x18\x05 \x01(\x01R\fcurrentPrice\x12(\n" +
+	"\x10price_change_24h\x18\x06 \x01(\x01R\x0epriceChange24h\"B\n" +
 	"\x10CryptoUpdateList\x12.\n" +
 	"\aupdates\x18\x01 \x03(\v2\x14.crypto.CryptoUpdateR\aupdates2W\n" +
 	"\x0fMessageStreamer\x12D\n" +
-	"\x0eStreamMessages\x12\x18.crypto.CryptoUpdateList\x1a\x16.google.protobuf.Empty(\x01B\x0fZ\rmodels/cryprob\x06proto3"
+	"\x0eStreamMessages\x12\x18.crypto.CryptoUpdateList\x1a\x16.google.protobuf.Empty(\x01B\x0fZ\rmodels/cryptob\x06proto3"
 
 var (
 	file_crypto_proto_rawDescOnce sync.Once

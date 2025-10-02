@@ -2,14 +2,9 @@ class CryptoApp {
     constructor() {
         this.ws = null;
         this.cryptos = new Map();
-        this.filteredCryptos = [];
-        this.searchTerm = '';
-        this.sortBy = 'name';
         
         this.elements = {
             status: document.getElementById('status'),
-            search: document.getElementById('search'),
-            sort: document.getElementById('sort'),
             grid: document.getElementById('cryptoGrid'),
             count: document.getElementById('count')
         };
@@ -24,10 +19,12 @@ class CryptoApp {
 
     connect() {
         try {
-            this.ws = new WebSocket('ws://localhost:8080/ws');
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsHost = window.location.hostname === 'localhost' ? 'localhost:8080' : window.location.host;
+            const wsUrl = `${wsProtocol}//${wsHost}/ws`;
+            this.ws = new WebSocket(wsUrl);
             
             this.ws.onopen = () => {
-                console.log('Connected to WebSocket');
                 this.updateStatus('Connected', 'connected');
             };
 
@@ -37,18 +34,15 @@ class CryptoApp {
             };
 
             this.ws.onclose = () => {
-                console.log('WebSocket closed');
                 this.updateStatus('Disconnected', 'disconnected');
                 setTimeout(() => this.connect(), 3000);
             };
 
             this.ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
                 this.updateStatus('Connection Error', 'disconnected');
             };
 
         } catch (error) {
-            console.error('Failed to connect:', error);
             this.updateStatus('Failed to Connect', 'disconnected');
             setTimeout(() => this.connect(), 3000);
         }
@@ -57,83 +51,62 @@ class CryptoApp {
     handleUpdates(updates) {
         updates.forEach(crypto => {
             const prev = this.cryptos.get(crypto.id);
-            crypto.priceChange = prev ? crypto.current_price - prev.current_price : 0;
+            crypto.priceChange24h = crypto.price_change_24h || 0;
             crypto.updated = true;
+            crypto.priceDirection = prev && prev.current_price !== crypto.current_price 
+                ? (crypto.current_price > prev.current_price ? 'up' : 'down') 
+                : null;
             this.cryptos.set(crypto.id, crypto);
         });
 
         this.updateCount();
-        this.filterAndRender();
+        this.render();
         
-        // Clear update flags after animation
         setTimeout(() => {
             updates.forEach(crypto => {
                 const stored = this.cryptos.get(crypto.id);
-                if (stored) stored.updated = false;
+                if (stored) {
+                    stored.updated = false;
+                    stored.priceDirection = null;
+                }
             });
-        }, 500);
+            this.render();
+        }, 1000);
     }
 
-    filterAndRender() {
-        let data = Array.from(this.cryptos.values());
-        
-        // Filter by search term
-        if (this.searchTerm) {
-            data = data.filter(crypto => 
-                crypto.name.toLowerCase().includes(this.searchTerm) ||
-                crypto.symbol.toLowerCase().includes(this.searchTerm) ||
-                crypto.id.toLowerCase().includes(this.searchTerm)
-            );
-        }
-        
-        // Sort data
-        data.sort((a, b) => {
-            switch (this.sortBy) {
-                case 'price': return b.current_price - a.current_price;
-                case 'symbol': return a.symbol.localeCompare(b.symbol);
-                case 'name':
-                default: return a.name.localeCompare(b.name);
-            }
-        });
-        
-        this.filteredCryptos = data;
-        this.render();
-    }
+
 
     render() {
-        if (this.filteredCryptos.length === 0) {
-            if (this.cryptos.size === 0) {
-                this.elements.grid.innerHTML = `
-                    <div class="loading">
-                        <div class="spinner"></div>
-                        <p>Waiting for data...</p>
-                    </div>
-                `;
-            } else {
-                this.elements.grid.innerHTML = `
-                    <div class="empty">
-                        <p>No cryptocurrencies found for "${this.searchTerm}"</p>
-                    </div>
-                `;
-            }
+        if (this.cryptos.size === 0) {
+            this.elements.grid.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Waiting for data...</p>
+                </div>
+            `;
             return;
         }
 
-        this.elements.grid.innerHTML = this.filteredCryptos
+        const cryptoArray = Array.from(this.cryptos.values());
+        cryptoArray.sort((a, b) => a.name.localeCompare(b.name));
+        
+        this.elements.grid.innerHTML = cryptoArray
             .map(crypto => this.createCard(crypto))
             .join('');
     }
 
     createCard(crypto) {
-        const priceClass = crypto.priceChange > 0 ? 'positive' : 
-                          crypto.priceChange < 0 ? 'negative' : 'neutral';
+        const priceClass = crypto.priceChange24h > 0 ? 'positive' : 
+                          crypto.priceChange24h < 0 ? 'negative' : 'neutral';
         
-        const changeText = crypto.priceChange !== 0 ? 
-            `${crypto.priceChange > 0 ? '+' : ''}$${Math.abs(crypto.priceChange).toFixed(4)}` : 
-            'No change';
+        const changeText = crypto.priceChange24h !== 0 ? 
+            `${crypto.priceChange24h > 0 ? '+' : ''}${crypto.priceChange24h.toFixed(2)}%` : 
+            '0.00%';
+
+        const splashClass = crypto.priceDirection ? `price-splash-${crypto.priceDirection}` : '';
 
         return `
-            <div class="crypto-card ${crypto.updated ? 'updated' : ''}">
+            <div class="crypto-card ${crypto.updated ? 'updated' : ''} ${splashClass}">
                 <div class="crypto-header">
                     <div class="crypto-info">
                         <img src="${crypto.image}" alt="${crypto.name}" class="crypto-icon" 
@@ -168,35 +141,9 @@ class CryptoApp {
     }
 
     setupEvents() {
-        // Search
-        this.elements.search.addEventListener('input', (e) => {
-            this.searchTerm = e.target.value.toLowerCase().trim();
-            this.filterAndRender();
-        });
-
-        // Sort
-        this.elements.sort.addEventListener('change', (e) => {
-            this.sortBy = e.target.value;
-            this.filterAndRender();
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-                e.preventDefault();
-                this.elements.search.focus();
-            }
-            if (e.key === 'Escape' && document.activeElement === this.elements.search) {
-                this.elements.search.value = '';
-                this.searchTerm = '';
-                this.filterAndRender();
-            }
-        });
     }
 }
 
-// Start the app
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Starting CryptoStream...');
     window.cryptoApp = new CryptoApp();
 });

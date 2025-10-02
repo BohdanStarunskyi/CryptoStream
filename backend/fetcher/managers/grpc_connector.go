@@ -3,15 +3,15 @@ package managers
 import (
 	"context"
 
-	"fetceher_service/models/crypro"
+	"fetceher_service/models/crypto"
 
 	"google.golang.org/grpc"
 )
 
 type GRPCConnector struct {
 	conn   *grpc.ClientConn
-	client crypro.MessageStreamerClient
-	stream crypro.MessageStreamer_StreamMessagesClient
+	client crypto.MessageStreamerClient
+	stream crypto.MessageStreamer_StreamMessagesClient
 }
 
 func NewGRPCConnector(address string) (*GRPCConnector, error) {
@@ -19,7 +19,7 @@ func NewGRPCConnector(address string) (*GRPCConnector, error) {
 	if err != nil {
 		return nil, err
 	}
-	client := crypro.NewMessageStreamerClient(conn)
+	client := crypto.NewMessageStreamerClient(conn)
 
 	stream, err := client.StreamMessages(context.Background())
 	if err != nil {
@@ -33,8 +33,8 @@ func NewGRPCConnector(address string) (*GRPCConnector, error) {
 	}, nil
 }
 
-func (g *GRPCConnector) SendUpdates(updates []*crypro.CryptoUpdate) error {
-	updateList := &crypro.CryptoUpdateList{
+func (g *GRPCConnector) SendUpdates(updates []*crypto.CryptoUpdate) error {
+	updateList := &crypto.CryptoUpdateList{
 		Updates: updates,
 	}
 	return g.stream.Send(updateList)

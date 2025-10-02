@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+*.md
+
+# Docker
+.dockerignore
+
+# Development
+.vscode
+.idea
+
+# Proto files (already compiled)
+proto/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~

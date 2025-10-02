@@ -4,10 +4,11 @@
 // - protoc             v6.32.1
 // source: crypto.proto
 
-package crypro
+package crypto
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

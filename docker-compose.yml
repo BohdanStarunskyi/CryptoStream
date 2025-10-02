@@ -1,0 +1,52 @@
+services:
+  # Gateway service - handles gRPC and WebSocket
+  gateway:
+    build:
+      context: ./backend/gateway
+      dockerfile: Dockerfile
+    container_name: crypto-gateway
+    ports:
+      - "8080:8080"  # WebSocket port
+      - "50051:50051"  # gRPC port
+    networks:
+      - crypto-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8080"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Fetcher service - fetches crypto data
+  fetcher:
+    build:
+      context: ./backend/fetcher
+      dockerfile: Dockerfile
+    container_name: crypto-fetcher
+    depends_on:
+      gateway:
+        condition: service_healthy
+    networks:
+      - crypto-network
+    environment:
+      - GATEWAY_HOST=gateway
+      - GATEWAY_PORT=50051
+
+  # Web frontend
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: crypto-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+    networks:
+      - crypto-network
+
+networks:
+  crypto-network:
+    driver: bridge
+
+volumes:
+  crypto-data:

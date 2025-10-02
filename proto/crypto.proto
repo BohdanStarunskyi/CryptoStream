@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package crypto;
 
-option go_package = "models/crypro";
+option go_package = "models/crypto";
 
 import "google/protobuf/empty.proto";
 
@@ -17,6 +17,7 @@ message CryptoUpdate {
   string name = 3;
   string image = 4;
   double current_price = 5;
+  double price_change_24h = 6;
 }
 
 message CryptoUpdateList {
